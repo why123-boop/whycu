@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《新闻学概论》第八版 · 交互式知识地图</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Custom Font Setup */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #F9F7F2; /* Warm Neutral Background */
+            color: #4A4A4A;
+        }
+
+        /* Palette Variables */
+        :root {
+            --color-red: #A94442;   /* Muted Red for Politics */
+            --color-blue: #5D8AA8;  /* Muted Blue for Tech */
+            --color-green: #73A373; /* Muted Green for Ontology */
+            --color-yellow: #D4AC0D;/* Muted Gold for Governance */
+            --color-bg-card: #FFFFFF;
+        }
+
+        /* Chart Container Styling (Mandatory) */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Max width constraint */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+                max-height: 300px;
+            }
+        }
+
+        /* Custom Scrollbar for aesthetic */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F1F1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #C1C1C1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #A8A8A8;
+        }
+
+        /* Tab Transitions */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            width: 100%; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #5D8AA8;
+            cursor: pointer;
+            margin-top: -6px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #ddd;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 1. Header Section -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-book-open text-2xl text-[#A94442]"></i>
+                <h1 class="text-xl font-bold text-gray-800 tracking-tight">《新闻学概论》<span class="text-sm font-normal text-gray-500 ml-2 hidden sm:inline-block">第八版 · 深度知识交互系统</span></h1>
+            </div>
+            <!-- Navigation Tabs -->
+            <nav class="flex space-x-1 sm:space-x-4 overflow-x-auto">
+                <button onclick="switchTab('tab-politics')" id="btn-politics" class="nav-btn px-3 py-2 rounded-md text-sm font-medium transition-colors bg-[#A94442] text-white whitespace-nowrap">
+                    <i class="fas fa-landmark mr-1"></i> 政治底色
+                </button>
+                <button onclick="switchTab('tab-ontology')" id="btn-ontology" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">
+                    <i class="fas fa-cube mr-1"></i> 本体规律
+                </button>
+                <button onclick="switchTab('tab-tech')" id="btn-tech" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">
+                    <i class="fas fa-network-wired mr-1"></i> 技术演进
+                </button>
+                <button onclick="switchTab('tab-governance')" id="btn-governance" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap">
+                    <i class="fas fa-balance-scale mr-1"></i> 治理变革
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- MODULE 1: POLITICS (SOUL) -->
+        <div id="tab-politics" class="tab-content active">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-[#A94442] mb-4">第一板块：灵魂与底色</h2>
+                <p class="text-lg text-gray-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#A94442]">
+                    本板块阐述了中国新闻事业的政治逻辑，即<strong>“变的是形式，不变的是灵魂”</strong>。核心在于坚持马克思主义新闻观与党性原则。请重点关注“真实性”的宏观维度以及党性与人民性的辩证统一。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Theoretical Foundations Card -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="bg-[#A94442] px-6 py-4 text-white flex justify-between items-center">
+                        <h3 class="text-lg font-bold">1. 马克思主义新闻观基石</h3>
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <!-- Truth View -->
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                <span class="w-8 h-8 rounded-full bg-red-100 text-[#A94442] flex items-center justify-center mr-2 text-sm">1.1</span>
+                                历史唯物主义真实观
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                                <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                                    <span class="text-xs font-bold text-gray-500 uppercase">微观真实</span>
+                                    <p class="text-sm mt-1">5W要素准确、信源核查、数据清洗。</p>
+                                </div>
+                                <div class="bg-red-50 p-3 rounded border border-red-100">
+                                    <span class="text-xs font-bold text-[#A94442] uppercase">宏观真实 (本质)</span>
+                                    <p class="text-sm mt-1">把握历史总趋势，透过现象看本质。</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 bg-yellow-50 rounded text-sm text-yellow-800 border-l-4 border-yellow-400">
+                                <i class="fas fa-lightbulb mr-1"></i> <strong>应用：</strong>编译外媒时需“翻译立场”，识别意识形态偏见。
+                            </div>
+                        </div>
+                        
+                        <!-- Mass View -->
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                <span class="w-8 h-8 rounded-full bg-red-100 text-[#A94442] flex items-center justify-center mr-2 text-sm">1.2</span>
+                                群众观的时代演进
+                            </h4>
+                            <div class="flex items-center justify-between text-sm bg-gray-50 p-4 rounded-lg">
+                                <span class="font-medium">延安时期</span>
+                                <i class="fas fa-arrow-right text-gray-400"></i>
+                                <span class="font-medium">互联网时代</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-gray-500 px-4 mt-1">
+                                <span>“依靠群众”</span>
+                                <span>“UGC治理/走转改”</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Party Principles Interactive -->
+                <div class="space-y-6">
+                    <!-- The 3 Dimensions -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">2. 党性原则的“三维统一”</h3>
+                        <div class="space-y-3">
+                            <div class="group cursor-pointer">
+                                <div class="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-red-50 transition-colors">
+                                    <div class="w-10 h-10 bg-[#A94442] text-white rounded-lg flex items-center justify-center text-lg mr-4 group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-gavel"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold text-gray-800">政治上</h5>
+                                        <p class="text-sm text-gray-600">同党中央保持高度一致（底线与规矩）。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group cursor-pointer">
+                                <div class="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-red-50 transition-colors">
+                                    <div class="w-10 h-10 bg-[#A94442] text-white rounded-lg flex items-center justify-center text-lg mr-4 group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-brain"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold text-gray-800">思想上</h5>
+                                        <p class="text-sm text-gray-600">坚持马列毛及习思想（指导思想）。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group cursor-pointer">
+                                <div class="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-red-50 transition-colors">
+                                    <div class="w-10 h-10 bg-[#A94442] text-white rounded-lg flex items-center justify-center text-lg mr-4 group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-users-cog"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold text-gray-800">组织上</h5>
+                                        <p class="text-sm text-gray-600">坚持党管媒体，遵守纪律（无条件服从）。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logical Loop -->
+                    <div class="bg-[#A94442] rounded-xl shadow-md p-6 text-white text-center">
+                        <h3 class="font-bold text-lg mb-2">党性与人民性的统一</h3>
+                        <p class="text-sm opacity-90 mb-4">逻辑闭环：党代表人民利益 → 坚持党性即坚持人民性</p>
+                        <div class="inline-block bg-white/20 px-4 py-2 rounded text-sm">
+                            <i class="fas fa-exclamation-circle mr-1"></i> 考试高分句：割裂二者是将“党”抽象化、利益集团化
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 2: ONTOLOGY (BODY) -->
+        <div id="tab-ontology" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-[#5D8AA8] mb-4">第二板块：本体与规律</h2>
+                <p class="text-lg text-gray-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#5D8AA8]">
+                    第八版最精彩的修正在于区分<strong>“新闻价值”</strong>（流量入口）与<strong>“新闻的价值”</strong>（社会效果）。在这个交互模块中，你将扮演一名主编，通过调整新闻的各项属性，观察其“流量”与“能量”的分布形态。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Controls Side -->
+                <div class="lg:col-span-1 bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-sliders-h mr-2 text-[#5D8AA8]"></i> 编辑决策台
+                    </h3>
+                    
+                    <!-- News Value Inputs -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-bold text-gray-500 uppercase mb-3">News Value (决定流量/受众爱看)</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>时效性 (Timeliness)</span>
+                                    <span id="val-timeliness">80</span>
+                                </label>
+                                <input type="range" id="input-timeliness" min="0" max="100" value="80" oninput="updateRadarChart()">
+                            </div>
+                            <div>
+                                <label class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>趣味性 (Interest)</span>
+                                    <span id="val-interest">90</span>
+                                </label>
+                                <input type="range" id="input-interest" min="0" max="100" value="90" oninput="updateRadarChart()">
+                            </div>
+                            <div>
+                                <label class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>显著性 (Prominence)</span>
+                                    <span id="val-prominence">70</span>
+                                </label>
+                                <input type="range" id="input-prominence" min="0" max="100" value="70" oninput="updateRadarChart()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Value of News Inputs -->
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-500 uppercase mb-3">Value of News (决定能量/社会好坏)</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>政治引导 (Guidance)</span>
+                                    <span id="val-guidance">40</span>
+                                </label>
+                                <input type="range" id="input-guidance" min="0" max="100" value="40" oninput="updateRadarChart()">
+                            </div>
+                            <div>
+                                <label class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>教育功能 (Education)</span>
+                                    <span id="val-education">30</span>
+                                </label>
+                                <input type="range" id="input-education" min="0" max="100" value="30" oninput="updateRadarChart()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization Side -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
+                    <h3 class="text-center font-bold text-gray-800 mb-2">新闻属性雷达图</h3>
+                    <p class="text-center text-sm text-gray-500 mb-6">观察形状：优秀的报道应追求“流量”与“能量”的平衡（最大公约数）</p>
+                    
+                    <div class="chart-container">
+                        <canvas id="newsRadarChart"></canvas>
+                    </div>
+
+                    <div class="mt-6 flex space-x-6 text-sm">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-blue-400 mr-2"></span>
+                            <span class="text-gray-600">流量属性 (News Value)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                            <span class="text-gray-600">社会价值 (Value of News)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Definition Block -->
+            <div class="mt-8 bg-[#EBF5FB] rounded-xl p-6 border border-blue-100">
+                <h3 class="font-bold text-[#5D8AA8] mb-2">新闻的第八版新定义</h3>
+                <p class="text-gray-700">
+                    <i class="fas fa-quote-left text-[#5D8AA8] opacity-50 mr-2"></i>
+                    在算法时代，新闻是<strong>“正在发生事实的流量入口”</strong>。判断依据不再仅仅是“新近发生”，更在于“变动性”与受众的“相关性”。
+                </p>
+            </div>
+        </div>
+
+        <!-- MODULE 3: TECH (EVOLUTION) -->
+        <div id="tab-tech" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-[#73A373] mb-4">第三板块：技术与业态</h2>
+                <p class="text-lg text-gray-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#73A373]">
+                    互联网技术重构了新闻生产、传播与社会控制。我们正在经历从 2G 的“精英话语”到 5G “万物皆媒”的跨越，生产主体也从单一的记者（PGC）扩展到用户（UGC）和机器（AI/MGC）。
+                </p>
+            </div>
+
+            <!-- Top Row: Evolution Timeline Chart -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-gray-800">技术驱动的内容生产演进</h3>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-history mr-1"></i> 2000 - 2025+
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="evolutionLineChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm text-gray-600">
+                    <div class="p-2 bg-gray-50 rounded">
+                        <strong>WEB 1.0 (2G/3G)</strong><br>门户网站/博客 (PGC主导)
+                    </div>
+                    <div class="p-2 bg-gray-50 rounded">
+                        <strong>WEB 2.0 (4G)</strong><br>微信/短视频 (UGC爆发)
+                    </div>
+                    <div class="p-2 bg-gray-50 rounded">
+                        <strong>WEB 3.0 (5G/AI)</strong><br>智能化/场景化 (MGC兴起)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Central Kitchen & Algorithm -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Media Convergence -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center mb-4 text-[#73A373]">
+                        <i class="fas fa-blender text-2xl mr-3"></i>
+                        <h3 class="text-xl font-bold">媒体融合：中央厨房模式</h3>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-5">
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <span class="bg-[#73A373] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-1">1</span>
+                                <div>
+                                    <strong class="block text-gray-800">一次采集</strong>
+                                    <span class="text-sm text-gray-600">全媒体记者汇聚素材库。</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-[#73A373] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-1">2</span>
+                                <div>
+                                    <strong class="block text-gray-800">多种生成</strong>
+                                    <span class="text-sm text-gray-600">针对不同终端加工（文字、视频、H5）。</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-[#73A373] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-1">3</span>
+                                <div>
+                                    <strong class="block text-gray-800">多元传播</strong>
+                                    <span class="text-sm text-gray-600">报、网、端、微全渠道分发。</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Algorithm Logic -->
+                <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-gray-200">
+                    <div class="flex items-center mb-4 text-gray-700">
+                        <i class="fas fa-robot text-2xl mr-3"></i>
+                        <h3 class="text-xl font-bold">编辑的新技能：算法逻辑</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">现代编辑必须懂得如何让优质内容进入算法推荐池，打破“信息茧房”。</p>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
+                            <span class="font-bold text-gray-700">优化标签 (Tagging)</span>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">关键</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
+                            <span class="font-bold text-gray-700">标题优化 (SEO)</span>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">基础</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
+                            <span class="font-bold text-gray-700">社交分发 (Social)</span>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">信任背书</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 4: GOVERNANCE (FUTURE) -->
+        <div id="tab-governance" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-[#D4AC0D] mb-4">第四板块：治理与变革</h2>
+                <p class="text-lg text-gray-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#D4AC0D]">
+                    面对两个舆论场的博弈，中国新闻改革历经百年脉络，核心是解决“为谁办报”和“如何生存”的问题。新时代对主流媒体提出了“四力”要求，以抢占舆论的第一定义权。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Timeline Column -->
+                <div class="lg:col-span-7 bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">中国新闻改革百年脉络</h3>
+                    <div class="relative border-l-4 border-[#D4AC0D] ml-3 pl-8 space-y-10">
+                        <!-- Event 1 -->
+                        <div class="relative">
+                            <div class="absolute -left-12 top-0 w-8 h-8 bg-[#D4AC0D] rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">1</div>
+                            <h4 class="font-bold text-gray-800 text-lg">1942 延安时期</h4>
+                            <p class="text-sm text-gray-600 mt-1"><strong>确立党报原则。</strong> 解决了“为谁办报”的问题。毛泽东《对晋绥日报编辑人员的谈话》。</p>
+                        </div>
+                        <!-- Event 2 -->
+                        <div class="relative">
+                            <div class="absolute -left-12 top-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">2</div>
+                            <h4 class="font-bold text-gray-800 text-lg">1956 探索时期</h4>
+                            <p class="text-sm text-gray-600 mt-1">探索报纸的<strong>人民性与知识性</strong>。虽然短暂，但留下了改革的火种。</p>
+                        </div>
+                        <!-- Event 3 -->
+                        <div class="relative">
+                            <div class="absolute -left-12 top-0 w-8 h-8 bg-[#D4AC0D] rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">3</div>
+                            <h4 class="font-bold text-gray-800 text-lg">1978 拨乱反正</h4>
+                            <p class="text-sm text-gray-600 mt-1">确立<strong>双重属性</strong>（事业单位，企业管理）。新闻业走向市场。</p>
+                        </div>
+                        <!-- Event 4 -->
+                        <div class="relative">
+                            <div class="absolute -left-12 top-0 w-8 h-8 bg-[#A94442] rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">4</div>
+                            <h4 class="font-bold text-gray-800 text-lg">2014 - 至今</h4>
+                            <p class="text-sm text-gray-600 mt-1"><strong>媒体融合与新型主流媒体。</strong> 解决互联网时代的生存权与话语权。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Four Forces Chart Column -->
+                <div class="lg:col-span-5 bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">新时代标尺：“四力”要求</h3>
+                    <div class="chart-container">
+                        <canvas id="forcesChart"></canvas>
+                    </div>
+                    <div class="mt-4 bg-yellow-50 p-4 rounded text-sm text-yellow-900">
+                        <h5 class="font-bold mb-1"><i class="fas fa-flag mr-1"></i> 舆论引导策略</h5>
+                        <p>主流媒体要抢占<strong>“第一定义权”</strong>，不失语、不妄语。坚持正面宣传为主（团结稳定鼓劲）。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="font-medium text-lg mb-2">《新闻学概论》知识交互地图</p>
+            <p class="text-gray-400 text-sm">基于李良荣教授第八版教材核心内容生成</p>
+            <div class="mt-4 text-xs text-gray-500">
+                <span class="mx-2">政治逻辑</span> • <span class="mx-2">技术逻辑</span> • <span class="mx-2">全媒体素养</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- 1. Navigation Logic ---
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Reset button styles
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap';
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Highlight selected button
+            const activeBtnMap = {
+                'tab-politics': {id: 'btn-politics', color: 'bg-[#A94442]'},
+                'tab-ontology': {id: 'btn-ontology', color: 'bg-[#5D8AA8]'},
+                'tab-tech': {id: 'btn-tech', color: 'bg-[#73A373]'},
+                'tab-governance': {id: 'btn-governance', color: 'bg-[#D4AC0D]'}
+            };
+            const btnConfig = activeBtnMap[tabId];
+            const activeBtn = document.getElementById(btnConfig.id);
+            activeBtn.className = `nav-btn px-3 py-2 rounded-md text-sm font-medium transition-colors ${btnConfig.color} text-white shadow-md whitespace-nowrap`;
+        }
+
+        // --- 2. Chart.js Global Config ---
+        Chart.defaults.font.family = "'Noto Sans SC', sans-serif";
+        Chart.defaults.color = '#666';
+
+        // --- 3. Ontology Radar Chart Logic ---
+        let radarChart;
+
+        function initRadarChart() {
+            const ctx = document.getElementById('newsRadarChart').getContext('2d');
+            
+            // Initial Data
+            const data = {
+                labels: ['时效性', '趣味性', '显著性', '政治引导', '教育功能'],
+                datasets: [{
+                    label: '当前新闻形态',
+                    data: [80, 90, 70, 40, 30],
+                    fill: true,
+                    backgroundColor: 'rgba(93, 138, 168, 0.2)', // Blueish
+                    borderColor: 'rgb(93, 138, 168)',
+                    pointBackgroundColor: 'rgb(93, 138, 168)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(93, 138, 168)'
+                }]
+            };
+
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label; // Simple label return
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            radarChart = new Chart(ctx, config);
+        }
+
+        function updateRadarChart() {
+            // Get values from sliders
+            const v1 = document.getElementById('input-timeliness').value;
+            const v2 = document.getElementById('input-interest').value;
+            const v3 = document.getElementById('input-prominence').value;
+            const v4 = document.getElementById('input-guidance').value;
+            const v5 = document.getElementById('input-education').value;
+
+            // Update display numbers
+            document.getElementById('val-timeliness').innerText = v1;
+            document.getElementById('val-interest').innerText = v2;
+            document.getElementById('val-prominence').innerText = v3;
+            document.getElementById('val-guidance').innerText = v4;
+            document.getElementById('val-education').innerText = v5;
+
+            // Update Chart
+            radarChart.data.datasets[0].data = [v1, v2, v3, v4, v5];
+            
+            // Dynamic Color Change based on "Social Value" (Indices 3 & 4)
+            // If Social Value is high, tint green. If low, tint blue.
+            const socialScore = (parseInt(v4) + parseInt(v5)) / 2;
+            if(socialScore > 70) {
+                radarChart.data.datasets[0].backgroundColor = 'rgba(115, 163, 115, 0.4)'; // Green tint
+                radarChart.data.datasets[0].borderColor = '#73A373';
+                radarChart.data.datasets[0].pointBackgroundColor = '#73A373';
+            } else {
+                radarChart.data.datasets[0].backgroundColor = 'rgba(93, 138, 168, 0.2)'; // Blue tint
+                radarChart.data.datasets[0].borderColor = '#5D8AA8';
+                radarChart.data.datasets[0].pointBackgroundColor = '#5D8AA8';
+            }
+
+            radarChart.update();
+        }
+
+        // --- 4. Tech Evolution Line Chart ---
+        function initEvolutionChart() {
+            const ctx = document.getElementById('evolutionLineChart').getContext('2d');
+            
+            // Helper for label wrapping
+            const labels = ['2000 (2G)', '2008 (3G)', '2014 (4G)', '2020 (5G)', '2025 (AI)'];
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'PGC (专业生产)',
+                            data: [90, 80, 50, 30, 20],
+                            borderColor: '#A94442', // Red/Traditional
+                            tension: 0.4
+                        },
+                        {
+                            label: 'UGC (用户生产)',
+                            data: [5, 15, 45, 60, 50],
+                            borderColor: '#5D8AA8', // Blue/Grassroot
+                            tension: 0.4
+                        },
+                        {
+                            label: 'AIGC (智能生成)',
+                            data: [0, 0, 5, 20, 60],
+                            borderColor: '#73A373', // Green/Future
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                }
+            });
+        }
+
+        // --- 5. Governance Polar Chart ---
+        function initForcesChart() {
+            const ctx = document.getElementById('forcesChart').getContext('2d');
+            
+            // Labels needing wrapping? They are short enough here.
+            
+            new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['传播力', '引导力', '影响力', '公信力'],
+                    datasets: [{
+                        label: '能力指标',
+                        data: [85, 90, 80, 95],
+                        backgroundColor: [
+                            'rgba(93, 138, 168, 0.7)', // Blue
+                            'rgba(169, 68, 66, 0.7)',  // Red
+                            'rgba(212, 172, 13, 0.7)', // Yellow
+                            'rgba(115, 163, 115, 0.7)' // Green
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            ticks: { display: false } // Cleaner look
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize everything on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initRadarChart();
+            initEvolutionChart();
+            initForcesChart();
+        });
+
+    </script>
+</body>
+</html>
